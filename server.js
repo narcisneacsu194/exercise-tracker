@@ -3,6 +3,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const { ObjectID } = require('mongodb');
 const moment = require('moment');
+const _ = require('lodash');
 require('./db/mongoose');
 const { User } = require('./models/user');
 const { Exercise } = require('./models/exercise');
@@ -91,6 +92,52 @@ app.post('/api/exercise/add', (req, res) => {
     }).catch((err) => {
         res.status(400).send(`Something went wrong -> ${err}`);
     });
+});
+
+app.get('/api/exercise/log', (req, res) => {
+    const q = req.query;
+    if(!q.userId || q.userId.length === 0){
+      return res.status(400).send('unknown userId');
+    }
+
+    let username;
+    User.findById(q.userId).then((user) => {
+        if(!user){
+          return res.status(400).send('unknown userId');
+        }
+
+        username = user.username;
+
+        return Exercise.find({ userId: q.userId });
+    }).then((exercises) => {
+        if (!(exercises instanceof Array)) return;
+        let newExerciseArr = exercises.map((exercise) => {
+            return _.pick(exercise, ['description', 'duration', 'date']);
+        });
+        let finalExerciseArr = [];
+
+        if(q.limit && q.limit !== 0){
+            let limit = Math.abs(q.limit);
+            let i = 0;
+            while(i < limit){
+              finalExerciseArr[i] = newExerciseArr[i];
+              i++;
+            }
+        }
+
+        const response = {
+            _id: q.userId,
+            username,
+            count: finalExerciseArr.length === 0 ? newExerciseArr.length : 
+                finalExerciseArr.length,
+            log: finalExerciseArr.length === 0 ? newExerciseArr : 
+                finalExerciseArr
+        };
+
+        res.send(response);
+    }).catch((err) => {
+      res.status(400).send(`Something went wrong -> ${err}`);    
+    });    
 });
 
 const validateResponse = (body, res) => {
