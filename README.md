@@ -79,6 +79,8 @@ You need to have ***git***, ***yarn***, ***nodejs*** and ***mongodb*** installed
 > git clone git@github.com:narcisneacsu194/exercise-tracker.git
 > cd {your_local_path}/exercise-tracker
 > yarn install
+> cd {your_local_path}/mongodb/bin
+> ./mongod --dbpath {path_of_mongo_data_folder}
 > node server.js
 ```
 
