@@ -14,7 +14,7 @@ app.use(bodyParser.json());
 
 app.post('/api/exercise/new-user', (req, res) => {
     const username = req.body.username;
-    if(username.trim().length === 0){
+    if(!username || username.trim().length === 0){
         return res.status(400).send('Path `username` is required.');
     }
 
@@ -46,6 +46,12 @@ app.post('/api/exercise/new-user', (req, res) => {
 
 app.post('/api/exercise/add', (req, res) => {
     const body = req.body;
+
+    const result = validateResponse(body, res);
+    if(result){
+        return result;
+    }
+
     let username;
     let date;
     let format = 'ddd MMM DD YYYY';
@@ -86,6 +92,34 @@ app.post('/api/exercise/add', (req, res) => {
         res.status(400).send(`Something went wrong -> ${err}`);
     });
 });
+
+const validateResponse = (body, res) => {
+    if(!body.userId || body.userId.trim().length === 0){
+        return res.status(400).send('unknown _id');
+    }
+    
+    if(!body.description || body.description.trim().length === 0){
+        return res.status(400).send('Path `description` is required.');
+    }
+
+    if(!body.duration){
+        return res.status(400).send('Path `duration` is required.');
+    }
+
+    if(body.duration < 1){
+        return res.status(400).send('duration too short');
+    }
+
+    if(isNaN(body.duration)){
+        return res.status(400).send(`Cast to Number failed for value "${body.duration}" at path "duration"`);
+    }
+
+    if (body.date && !moment(body.date).isValid()) {
+        return res.status(400).send(`Cast to Date failed for value "${body.date}" at path "date"`);
+    }
+
+    return null;
+};
 
 app.listen(port, () => {
     console.log(`Server started up on port ${port}`);
