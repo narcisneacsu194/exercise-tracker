@@ -5,20 +5,20 @@ Microservice project for tracking details about exercises done by different user
 **Examples:**
 
 * *POST /api/exercise/new-user* enables you to create a new user. A request body like the following is needed: 
-
    ```
     {
       "username": "exampleUsername"
     }
    ```
-After this endpoint is executed, a response body like the following is returned: 
+  After this endpoint is executed, a response body like the following is returned: 
+
    ```
     {
       "username": "exampleUsername",
       "_id": "<random_alphanumeric_string>"
     }
    ```
-The "_id" property is needed to access the exercises done by that specific user.
+  The "_id" property is needed to access the exercises done by that specific user.
 
 * *POST /api/exercise/add* enables you to create an exercise for a specific user. A request body like the following is needed: 
 
