@@ -113,6 +113,25 @@ app.get('/api/exercise/log', (req, res) => {
 
         username = user.username;
 
+
+        if(q.from && moment(q.from).isValid() && q.to && moment(q.to).isValid()){
+          let dateVarFrom = moment(q.from);
+          let dbDateFrom = new Date(dateVarFrom.valueOf());
+          dbDateFrom.setTime(dbDateFrom.getTime() - (dbDateFrom.getTimezoneOffset() * 60 * 1000));
+
+          let dateVarTo = moment(q.to);
+          let dbDateTo = new Date(dateVarTo.valueOf());
+          dbDateTo.setTime(dbDateTo.getTime() - (dbDateTo.getTimezoneOffset() * 60 * 1000));
+
+          return Exercise.find({
+            userId: q.userId,
+            date: {
+                $gt: dbDateFrom,
+                $lt: dbDateTo
+            }
+          }).sort('-date');
+        }
+
         if(q.from && moment(q.from).isValid()){
           let dateVar = moment(q.from);
           let dbDate = new Date(dateVar.valueOf());
@@ -120,12 +139,24 @@ app.get('/api/exercise/log', (req, res) => {
           return Exercise.find({
               userId: q.userId,
               date: {
-                  $gte: dbDate
+                  $gt: dbDate
               }
-          });
+          }).sort('-date');
         }
 
-        return Exercise.find({ userId: q.userId });
+        if(q.to && moment(q.to).isValid()){
+            let dateVar = moment(q.to);
+            let dbDate = new Date(dateVar.valueOf());
+            dbDate.setTime(dbDate.getTime() - (dbDate.getTimezoneOffset() * 60 * 1000));
+            return Exercise.find({
+                userId: q.userId,
+                date: {
+                    $lt: dbDate
+                }
+            }).sort('-date');
+        }
+
+        return Exercise.find({ userId: q.userId }).sort('-date');
     }).then((exercises) => {
         if (!(exercises instanceof Array)) return;
         let newExerciseArr = exercises.map((exercise) => {
@@ -137,7 +168,7 @@ app.get('/api/exercise/log', (req, res) => {
         });
         let finalExerciseArr = [];
 
-        if(q.limit && q.limit !== 0){
+        if(q.limit && q.limit !== 0 && exercises.length > q.limit){
             let limit = Math.abs(q.limit);
             let i = 0;
             while(i < limit){
