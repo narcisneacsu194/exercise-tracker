@@ -2,7 +2,7 @@ require('./config/config.js');
 const express = require('express');
 const bodyParser = require('body-parser');
 const { ObjectID } = require('mongodb');
-const moment = require('moment');
+const moment = require('moment-timezone');
 const _ = require('lodash');
 require('./db/mongoose');
 const { User } = require('./models/user');
@@ -55,6 +55,8 @@ app.post('/api/exercise/add', (req, res) => {
 
     let username;
     let date;
+    let dateVar;
+    let dayOfMonth;
     let format = 'ddd MMM DD YYYY';
     User.findById(body.userId).then((user) => {
         if(!user){
@@ -63,9 +65,13 @@ app.post('/api/exercise/add', (req, res) => {
         username = user.username;
 
         if(!body.date){
-            date = moment().format(format);
+          dateVar = moment();
+          date = new Date(dateVar.valueOf());
+          date.setTime(date.getTime() - (date.getTimezoneOffset() * 60 * 1000));
         }else{
-            date = moment(body.date).format(format);
+          dateVar = moment(body.date);
+          date = new Date(dateVar.valueOf());
+          date.setTime(date.getTime() - (date.getTimezoneOffset() * 60 * 1000));
         }
 
         const exercise = new Exercise({
@@ -107,6 +113,18 @@ app.get('/api/exercise/log', (req, res) => {
         }
 
         username = user.username;
+
+        if(q.from && moment(q.from).isValid()){
+          let dateVar = moment(q.from);
+          let dbDate = new Date(dateVar.valueOf());
+          dbDate.setTime(dbDate.getTime() - (dbDate.getTimezoneOffset() * 60 * 1000));
+          return Exercise.find({
+              userId: q.userId,
+              date: {
+                  $gte: dbDate
+              }
+          });
+        }
 
         return Exercise.find({ userId: q.userId });
     }).then((exercises) => {
