@@ -56,7 +56,6 @@ app.post('/api/exercise/add', (req, res) => {
     let username;
     let date;
     let dateVar;
-    let dayOfMonth;
     let format = 'ddd MMM DD YYYY';
     User.findById(body.userId).then((user) => {
         if(!user){
@@ -86,13 +85,13 @@ app.post('/api/exercise/add', (req, res) => {
     }).then((exercise) => {
         if(!exercise.description)return;
 
-        const finalExercise = new Exercise({
+        const finalExercise = {
             username,
             description: exercise.description,
             duration: exercise.duration,
             userId: exercise.userId.toString(),
-            date: exercise.date
-        });
+            date: moment(exercise.date).format(format)
+        };
 
         res.send(finalExercise);
     }).catch((err) => {
@@ -131,6 +130,10 @@ app.get('/api/exercise/log', (req, res) => {
         if (!(exercises instanceof Array)) return;
         let newExerciseArr = exercises.map((exercise) => {
             return _.pick(exercise, ['description', 'duration', 'date']);
+        });
+        newExerciseArr = newExerciseArr.map((exercise) => {
+            exercise.date = moment(exercise.date).format('ddd MMM DD YYYY');
+            return exercise;
         });
         let finalExerciseArr = [];
 
