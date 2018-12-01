@@ -7,6 +7,7 @@ const _ = require('lodash');
 require('./db/mongoose');
 const { User } = require('./models/user');
 const { Exercise } = require('./models/exercise');
+const { validateResponse } = require('./validation/validation.js');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -43,38 +44,6 @@ app.post('/api/exercise/new-user', (req, res) => {
     res.status(400).send(`The following error occured: ${err}`);
   });
 });
-
-const validateResponse = (body, res) => {
-  if (!body.userId || body.userId.trim().length === 0) {
-    return res.status(400).send('unknown _id');
-  }
-
-  if (!ObjectID.isValid(body.userId)) {
-    return res.status(400).send('The provided userId has an invalid format.');
-  }
-
-  if (!body.description || body.description.trim().length === 0) {
-    return res.status(400).send('Path `description` is required.');
-  }
-
-  if (!body.duration && body.duration !== 0) {
-    return res.status(400).send('Path `duration` is required.');
-  }
-
-  if (body.duration < 1) {
-    return res.status(400).send('duration too short');
-  }
-
-  if (Number.isNaN(Number(body.duration))) {
-    return res.status(400).send(`Cast to Number failed for value "${body.duration}" at path "duration"`);
-  }
-
-  if (body.date && !moment(body.date).isValid()) {
-    return res.status(400).send(`Cast to Date failed for value "${body.date}" at path "date"`);
-  }
-
-  return null;
-};
 
 app.post('/api/exercise/add', (req, res) => {
   const { body } = req;
