@@ -3,6 +3,11 @@
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
+  "scripts": {
+    "start": "node server.js",
+    "test": "export NODE_ENV=test || SET \"NODE_ENV=test\" && nyc --reporter=html mocha test/*.test.js",
+    "test-watch": "nodemon --exec 'npm test'"
+  },
   "dependencies": {
     "body-parser": "1.15.2",
     "express": "4.16.4",
@@ -10,5 +15,11 @@
     "moment-timezone": "0.5.23",
     "mongodb": "3.1.10",
     "mongoose": "5.3.13"
+  },
+  "devDependencies": {
+    "expect": "21.1.0",
+    "mocha": "3.0.2",
+    "nyc": "^13.1.0",
+    "supertest": "2.0.0"
   }
 }

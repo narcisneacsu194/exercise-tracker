@@ -24,14 +24,6 @@ const ExerciseSchema = mongoose.Schema({
   }
 });
 
-function toJSON() {
-  const exercise = this;
-  const exerciseObject = exercise.toObject();
-  return _.pick(exerciseObject, ['username', 'description', 'duration', 'userId', 'date']);
-}
-  
-ExerciseSchema.methods.toJSON = toJSON;
-
 const Exercise = mongoose.model('Exercise', ExerciseSchema);
 
 module.exports = { Exercise };

@@ -105,6 +105,10 @@ app.get('/api/exercise/log', (req, res) => {
       return res.status(400).send('unknown userId');
     }
 
+    if(!ObjectID.isValid(q.userId)){
+      return res.status(400).send('The provided userId has an invalid format.');
+    }
+
     let username;
     User.findById(q.userId).then((user) => {
         if(!user){
@@ -196,12 +200,16 @@ const validateResponse = (body, res) => {
     if(!body.userId || body.userId.trim().length === 0){
         return res.status(400).send('unknown _id');
     }
+
+    if(!ObjectID.isValid(body.userId)){
+        return res.status(400).send('The provided userId has an invalid format.');
+    }
     
     if(!body.description || body.description.trim().length === 0){
         return res.status(400).send('Path `description` is required.');
     }
 
-    if(!body.duration){
+    if(!body.duration && body.duration !== 0){
         return res.status(400).send('Path `duration` is required.');
     }
 
