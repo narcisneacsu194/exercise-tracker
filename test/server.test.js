@@ -113,8 +113,6 @@ describe('POST /api/exercise/add', () => {
           Exercise.find({}).then((exercises) => {
               const dbExercise = exercises[exercises.length-1];
               const date = new Date(moment().valueOf());
-              dbExercise.date.setTime(dbExercise.date.getTime() +
-               (dbExercise.date.getTimezoneOffset() * 60 * 1000));
               const formattedDate = moment(date).format('ddd MMM DD YYYY HH:mm');
               const formattedDbDate = moment(dbExercise.date).format('ddd MMM DD YYYY HH:mm');
               
@@ -159,8 +157,6 @@ describe('POST /api/exercise/add', () => {
           Exercise.find({}).then((exercises) => {
               const dbExercise = exercises[exercises.length-1];
               const date = new Date(moment("2018-05-01").valueOf());
-              dbExercise.date.setTime(dbExercise.date.getTime() +
-               (dbExercise.date.getTimezoneOffset() * 60 * 1000));
               const formattedDate = moment(date).format('ddd MMM DD YYYY HH:mm');
               const formattedDbDate = moment(dbExercise.date).format('ddd MMM DD YYYY HH:mm');
               

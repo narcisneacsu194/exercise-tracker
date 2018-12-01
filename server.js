@@ -66,11 +66,9 @@ app.post('/api/exercise/add', (req, res) => {
         if(!body.date){
           dateVar = moment();
           date = new Date(dateVar.valueOf());
-          date.setTime(date.getTime() - (date.getTimezoneOffset() * 60 * 1000));
         }else{
           dateVar = moment(body.date);
           date = new Date(dateVar.valueOf());
-          date.setTime(date.getTime() - (date.getTimezoneOffset() * 60 * 1000));
         }
 
         const exercise = new Exercise({
