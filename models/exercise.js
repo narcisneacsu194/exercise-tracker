@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const _ = require('lodash');
 
 const ExerciseSchema = mongoose.Schema({
   username: {
@@ -11,12 +10,12 @@ const ExerciseSchema = mongoose.Schema({
     required: true
   },
   description: {
-      type: String,
-      required: true
+    type: String,
+    required: true
   },
   duration: {
-      type: Number,
-      required: true
+    type: Number,
+    required: true
   },
   date: {
     type: Date,

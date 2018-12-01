@@ -11,76 +11,76 @@ beforeEach(populateUserCollection);
 beforeEach(populateExerciseCollection);
 
 describe('POST /api/exercise/new-user', () => {
-    it('should create a new user', (done) => {
-        const user = {
-            username: "admin2"
-        };
-        request(app)
-            .post('/api/exercise/new-user')
-            .send(user)
-            .expect(200)
-            .expect((res) => {
-                expect(res.body.username).toBe(user.username);
-                expect(res.body._id).toBeTruthy();
-            })
-            .end((err, res) => {
-                if(err){
-                    return done(err);
-                }
+  it('should create a new user', (done) => {
+    const user = {
+      username: 'admin2'
+    };
+    request(app)
+      .post('/api/exercise/new-user')
+      .send(user)
+      .expect(200)
+      .expect((res) => {
+        expect(res.body.username).toBe(user.username);
+        expect(res.body._id).toBeTruthy();
+      })
+      .end((err, res) => {
+        if (err) {
+          return done(err);
+        }
 
-                User.findOne(user).then((userDb) => {
-                    expect(userDb.username).toBe(user.username);
-                    done();
-                }).catch((error) => done(error));
-            });
-    });
+        return User.findOne(user).then((userDb) => {
+          expect(userDb.username).toBe(user.username);
+          done();
+        }).catch(error => done(error));
+      });
+  });
 
-    it('should return error message that the username field is required', (done) => {
-        const user = {
-            property: 'property'
-        };
-        request(app)
-            .post('/api/exercise/new-user')
-            .send(user)
-            .expect(400)
-            .expect((res) => {
-                expect(res.text).toBe('Path `username` is required.');
-            })
-            .end((err, res) => {
-                if(err){
-                    return done(err);
-                }
+  it('should return error message that the username field is required', (done) => {
+    const user = {
+      property: 'property'
+    };
+    request(app)
+      .post('/api/exercise/new-user')
+      .send(user)
+      .expect(400)
+      .expect((res) => {
+        expect(res.text).toBe('Path `username` is required.');
+      })
+      .end((err, res) => {
+        if (err) {
+          return done(err);
+        }
 
-                User.findOne(user).then((userDb) => {
-                    expect(userDb).toBeFalsy();
-                    done();
-                }).catch((error) => done(error));
-            });
-    });
+        return User.findOne(user).then((userDb) => {
+          expect(userDb).toBeFalsy();
+          done();
+        }).catch(error => done(error));
+      });
+  });
 
-    it('should return username already taken message', (done) => {
-        const user = {
-            username: "admin1"
-        };
+  it('should return username already taken message', (done) => {
+    const user = {
+      username: 'admin1'
+    };
 
-        request(app)
-            .post('/api/exercise/new-user')
-            .send(user)
-            .expect(400)
-            .expect((res) => {
-              expect(res.text).toBe('username already taken');
-            })
-            .end((err, res) => {
-                if(err){
-                    return done(err);
-                }
+    request(app)
+      .post('/api/exercise/new-user')
+      .send(user)
+      .expect(400)
+      .expect((res) => {
+        expect(res.text).toBe('username already taken');
+      })
+      .end((err, res) => {
+        if (err) {
+          return done(err);
+        }
 
-                User.find({}).then((users) => {
-                  expect(users.length).toBe(1);
-                  done();
-                }).catch((error) => done(error));
-            });
-    });
+        return User.find({}).then((users) => {
+          expect(users.length).toBe(1);
+          done();
+        }).catch(error => done(error));
+      });
+  });
 });
 
 describe('POST /api/exercise/add', () => {
@@ -89,9 +89,9 @@ describe('POST /api/exercise/add', () => {
     const username = process.env.DB_USER_NAME;
 
     const exercise = {
-        userId,
-        description: "Description 1",
-        duration: 123
+      userId,
+      description: 'Description 1',
+      duration: 123
     };
 
     request(app)
@@ -106,24 +106,24 @@ describe('POST /api/exercise/add', () => {
         expect(res.body.date).toBe(moment().format('ddd MMM DD YYYY'));
       })
       .end((err, res) => {
-          if(err){
-            return done(err);
-          }
+        if (err) {
+          return done(err);
+        }
 
-          Exercise.find({}).then((exercises) => {
-              const dbExercise = exercises[exercises.length-1];
-              const date = new Date(moment().valueOf());
-              const formattedDate = moment(date).format('ddd MMM DD YYYY HH:mm');
-              const formattedDbDate = moment(dbExercise.date).format('ddd MMM DD YYYY HH:mm');
-              
-              expect(dbExercise.username).toBe(process.env.DB_USER_NAME);
-              expect(dbExercise.userId.toString()).toBe(process.env.DB_USER_ID);
-              expect(dbExercise.description).toBe(exercise.description);
-              expect(dbExercise.duration).toBe(exercise.duration);
-              expect(formattedDbDate).toBe(formattedDate);
+        return Exercise.find({}).then((exercises) => {
+          const dbExercise = exercises[exercises.length - 1];
+          const date = new Date(moment().valueOf());
+          const formattedDate = moment(date).format('ddd MMM DD YYYY HH:mm');
+          const formattedDbDate = moment(dbExercise.date).format('ddd MMM DD YYYY HH:mm');
 
-              done();
-          }).catch((error) => done(error));
+          expect(dbExercise.username).toBe(process.env.DB_USER_NAME);
+          expect(dbExercise.userId.toString()).toBe(process.env.DB_USER_ID);
+          expect(dbExercise.description).toBe(exercise.description);
+          expect(dbExercise.duration).toBe(exercise.duration);
+          expect(formattedDbDate).toBe(formattedDate);
+
+          done();
+        }).catch(error => done(error));
       });
   });
 
@@ -132,10 +132,10 @@ describe('POST /api/exercise/add', () => {
     const username = process.env.DB_USER_NAME;
 
     const exercise = {
-        userId,
-        description: "Description 1",
-        duration: 123,
-        date: "2018-05-01"
+      userId,
+      description: 'Description 1',
+      duration: 123,
+      date: '2018-05-01'
     };
 
     request(app)
@@ -150,30 +150,30 @@ describe('POST /api/exercise/add', () => {
         expect(res.body.date).toBe(moment(exercise.date).format('ddd MMM DD YYYY'));
       })
       .end((err, res) => {
-          if(err){
-            return done(err);
-          }
+        if (err) {
+          return done(err);
+        }
 
-          Exercise.find({}).then((exercises) => {
-              const dbExercise = exercises[exercises.length-1];
-              const date = new Date(moment("2018-05-01").valueOf());
-              const formattedDate = moment(date).format('ddd MMM DD YYYY HH:mm');
-              const formattedDbDate = moment(dbExercise.date).format('ddd MMM DD YYYY HH:mm');
-              
-              expect(dbExercise.username).toBe(process.env.DB_USER_NAME);
-              expect(dbExercise.userId.toString()).toBe(process.env.DB_USER_ID);
-              expect(dbExercise.description).toBe(exercise.description);
-              expect(dbExercise.duration).toBe(exercise.duration);
-              expect(formattedDbDate).toBe(formattedDate);
+        return Exercise.find({}).then((exercises) => {
+          const dbExercise = exercises[exercises.length - 1];
+          const date = new Date(moment('2018-05-01').valueOf());
+          const formattedDate = moment(date).format('ddd MMM DD YYYY HH:mm');
+          const formattedDbDate = moment(dbExercise.date).format('ddd MMM DD YYYY HH:mm');
 
-              done();
-          }).catch((error) => done(error));
+          expect(dbExercise.username).toBe(process.env.DB_USER_NAME);
+          expect(dbExercise.userId.toString()).toBe(process.env.DB_USER_ID);
+          expect(dbExercise.description).toBe(exercise.description);
+          expect(dbExercise.duration).toBe(exercise.duration);
+          expect(formattedDbDate).toBe(formattedDate);
+
+          done();
+        }).catch(error => done(error));
       });
   });
 
   it('should return error message if no userId is provided', (done) => {
     const exercise = {
-      description: "Description 1",
+      description: 'Description 1',
       duration: 123
     };
     request(app)
@@ -181,25 +181,25 @@ describe('POST /api/exercise/add', () => {
       .send(exercise)
       .expect(400)
       .expect((res) => {
-        expect(res.text).toBe('unknown _id');  
+        expect(res.text).toBe('unknown _id');
       })
       .end((err, res) => {
-         if(err){
-            return done(err);
-         }
+        if (err) {
+          return done(err);
+        }
 
-         Exercise.find({}).then((exercises) => {
-            expect(exercises.length).toBe(5);
-            done();
-         }).catch((error) => done(error));
+        return Exercise.find({}).then((exercises) => {
+          expect(exercises.length).toBe(5);
+          done();
+        }).catch(error => done(error));
       });
   });
 
   it('should return error message if empty userId is provided', (done) => {
     const exercise = {
-        userId: " ",
-        description: "Description 1",
-        duration: 123
+      userId: ' ',
+      description: 'Description 1',
+      duration: 123
     };
 
     request(app)
@@ -210,22 +210,22 @@ describe('POST /api/exercise/add', () => {
         expect(res.text).toBe('unknown _id');
       })
       .end((err, res) => {
-          if(err){
-            return done(err);
-          }
+        if (err) {
+          return done(err);
+        }
 
-          Exercise.find({}).then((exercises) => {
-            expect(exercises.length).toBe(5);
-            done();
-         }).catch((error) => done(error));
+        return Exercise.find({}).then((exercises) => {
+          expect(exercises.length).toBe(5);
+          done();
+        }).catch(error => done(error));
       });
   });
 
   it('should return error message if a non-existent userId is provided', (done) => {
     const exercise = {
-        userId: new ObjectID().toString(),
-        description: "Description 1",
-        duration: 123
+      userId: new ObjectID().toString(),
+      description: 'Description 1',
+      duration: 123
     };
 
     request(app)
@@ -236,22 +236,22 @@ describe('POST /api/exercise/add', () => {
         expect(res.text).toBe('unknown _id');
       })
       .end((err, res) => {
-          if(err){
-            return done(err);
-          }
+        if (err) {
+          return done(err);
+        }
 
-          Exercise.find({}).then((exercises) => {
-            expect(exercises.length).toBe(5);
-            done();
-         }).catch((error) => done(error));
+        return Exercise.find({}).then((exercises) => {
+          expect(exercises.length).toBe(5);
+          done();
+        }).catch(error => done(error));
       });
   });
 
   it('should return error message if a userId with an invalid format is provided', (done) => {
     const exercise = {
-        userId: '1',
-        description: "Description 1",
-        duration: 123
+      userId: '1',
+      description: 'Description 1',
+      duration: 123
     };
 
     request(app)
@@ -262,21 +262,21 @@ describe('POST /api/exercise/add', () => {
         expect(res.text).toBe('The provided userId has an invalid format.');
       })
       .end((err, res) => {
-          if(err){
-            return done(err);
-          }
+        if (err) {
+          return done(err);
+        }
 
-          Exercise.find({}).then((exercises) => {
-            expect(exercises.length).toBe(5);
-            done();
-         }).catch((error) => done(error));
+        return Exercise.find({}).then((exercises) => {
+          expect(exercises.length).toBe(5);
+          done();
+        }).catch(error => done(error));
       });
   });
 
   it('should return error message if no description is provided', (done) => {
     const exercise = {
-        userId: process.env.DB_USER_ID,
-        duration: 123
+      userId: process.env.DB_USER_ID,
+      duration: 123
     };
 
     request(app)
@@ -287,22 +287,22 @@ describe('POST /api/exercise/add', () => {
         expect(res.text).toBe('Path `description` is required.');
       })
       .end((err, res) => {
-          if(err){
-            return done(err);
-          }
+        if (err) {
+          return done(err);
+        }
 
-          Exercise.find({}).then((exercises) => {
-            expect(exercises.length).toBe(5);
-            done();
-         }).catch((error) => done(error));
+        return Exercise.find({}).then((exercises) => {
+          expect(exercises.length).toBe(5);
+          done();
+        }).catch(error => done(error));
       });
   });
 
   it('should return error message if empty description is provided', (done) => {
     const exercise = {
-        userId: process.env.DB_USER_ID,
-        description: " ",
-        duration: 123
+      userId: process.env.DB_USER_ID,
+      description: ' ',
+      duration: 123
     };
 
     request(app)
@@ -313,21 +313,21 @@ describe('POST /api/exercise/add', () => {
         expect(res.text).toBe('Path `description` is required.');
       })
       .end((err, res) => {
-          if(err){
-            return done(err);
-          }
+        if (err) {
+          return done(err);
+        }
 
-          Exercise.find({}).then((exercises) => {
-            expect(exercises.length).toBe(5);
-            done();
-         }).catch((error) => done(error));
+        return Exercise.find({}).then((exercises) => {
+          expect(exercises.length).toBe(5);
+          done();
+        }).catch(error => done(error));
       });
   });
 
   it('should return error message if duration is not provided', (done) => {
     const exercise = {
-        userId: process.env.DB_USER_ID,
-        description: "Description 1"
+      userId: process.env.DB_USER_ID,
+      description: 'Description 1'
     };
 
     request(app)
@@ -338,22 +338,22 @@ describe('POST /api/exercise/add', () => {
         expect(res.text).toBe('Path `duration` is required.');
       })
       .end((err, res) => {
-          if(err){
-            return done(err);
-          }
+        if (err) {
+          return done(err);
+        }
 
-          Exercise.find({}).then((exercises) => {
-            expect(exercises.length).toBe(5);
-            done();
-         }).catch((error) => done(error));
+        return Exercise.find({}).then((exercises) => {
+          expect(exercises.length).toBe(5);
+          done();
+        }).catch(error => done(error));
       });
   });
 
   it('should return error message if duration is less than 1', (done) => {
     const exercise = {
-        userId: process.env.DB_USER_ID,
-        description: "Description 1",
-        duration: 0
+      userId: process.env.DB_USER_ID,
+      description: 'Description 1',
+      duration: 0
     };
 
     request(app)
@@ -364,22 +364,22 @@ describe('POST /api/exercise/add', () => {
         expect(res.text).toBe('duration too short');
       })
       .end((err, res) => {
-          if(err){
-            return done(err);
-          }
+        if (err) {
+          return done(err);
+        }
 
-          Exercise.find({}).then((exercises) => {
-            expect(exercises.length).toBe(5);
-            done();
-         }).catch((error) => done(error));
+        return Exercise.find({}).then((exercises) => {
+          expect(exercises.length).toBe(5);
+          done();
+        }).catch(error => done(error));
       });
   });
 
   it('should return error message if duration is not a number', (done) => {
     const exercise = {
-        userId: process.env.DB_USER_ID,
-        description: "Description 1",
-        duration: "Not a number"
+      userId: process.env.DB_USER_ID,
+      description: 'Description 1',
+      duration: 'Not a number'
     };
 
     request(app)
@@ -390,22 +390,22 @@ describe('POST /api/exercise/add', () => {
         expect(res.text).toBe(`Cast to Number failed for value "${exercise.duration}" at path "duration"`);
       })
       .end((err, res) => {
-          if(err){
-            return done(err);
-          }
+        if (err) {
+          return done(err);
+        }
 
-          Exercise.find({}).then((exercises) => {
-            expect(exercises.length).toBe(5);
-            done();
-         }).catch((error) => done(error));
+        return Exercise.find({}).then((exercises) => {
+          expect(exercises.length).toBe(5);
+          done();
+        }).catch(error => done(error));
       });
   });
 
   it('should return error message if duration is not a number', (done) => {
     const exercise = {
-        userId: process.env.DB_USER_ID,
-        description: "Description 1",
-        duration: "Not a number"
+      userId: process.env.DB_USER_ID,
+      description: 'Description 1',
+      duration: 'Not a number'
     };
 
     request(app)
@@ -416,23 +416,23 @@ describe('POST /api/exercise/add', () => {
         expect(res.text).toBe(`Cast to Number failed for value "${exercise.duration}" at path "duration"`);
       })
       .end((err, res) => {
-          if(err){
-            return done(err);
-          }
+        if (err) {
+          return done(err);
+        }
 
-          Exercise.find({}).then((exercises) => {
-            expect(exercises.length).toBe(5);
-            done();
-         }).catch((error) => done(error));
+        return Exercise.find({}).then((exercises) => {
+          expect(exercises.length).toBe(5);
+          done();
+        }).catch(error => done(error));
       });
   });
 
   it('should return error message if the provided date is invalid', (done) => {
     const exercise = {
-        userId: process.env.DB_USER_ID,
-        description: "Description 1",
-        duration: 123,
-        date: "Invalid date"
+      userId: process.env.DB_USER_ID,
+      description: 'Description 1',
+      duration: 123,
+      date: 'Invalid date'
     };
 
     request(app)
@@ -443,14 +443,14 @@ describe('POST /api/exercise/add', () => {
         expect(res.text).toBe(`Cast to Date failed for value "${exercise.date}" at path "date"`);
       })
       .end((err, res) => {
-          if(err){
-            return done(err);
-          }
+        if (err) {
+          return done(err);
+        }
 
-          Exercise.find({}).then((exercises) => {
-            expect(exercises.length).toBe(5);
-            done();
-         }).catch((error) => done(error));
+        return Exercise.find({}).then((exercises) => {
+          expect(exercises.length).toBe(5);
+          done();
+        }).catch(error => done(error));
       });
   });
 });
@@ -506,7 +506,7 @@ describe('GET /api/exercise/log', () => {
 
   it('should return exercises after a certain date', (done) => {
     const userId = process.env.DB_USER_ID;
-    const date = "2018-11-29";
+    const date = '2018-11-29';
 
     request(app)
       .get(`/api/exercise/log?userId=${userId}&from=${date}`)
@@ -539,7 +539,7 @@ describe('GET /api/exercise/log', () => {
 
   it('should return one exercise after a certain date', (done) => {
     const userId = process.env.DB_USER_ID;
-    const date = "2018-11-29";
+    const date = '2018-11-29';
 
     request(app)
       .get(`/api/exercise/log?userId=${userId}&from=${date}&limit=1`)
@@ -562,7 +562,7 @@ describe('GET /api/exercise/log', () => {
 
   it('should return exercises before a certain date', (done) => {
     const userId = process.env.DB_USER_ID;
-    const date = "2000-04-03";
+    const date = '2000-04-03';
 
     request(app)
       .get(`/api/exercise/log?userId=${userId}&to=${date}`)
@@ -590,7 +590,7 @@ describe('GET /api/exercise/log', () => {
 
   it('should return one exercise before a certain date', (done) => {
     const userId = process.env.DB_USER_ID;
-    const date = "2000-04-03";
+    const date = '2000-04-03';
 
     request(app)
       .get(`/api/exercise/log?userId=${userId}&to=${date}&limit=1`)
@@ -613,8 +613,8 @@ describe('GET /api/exercise/log', () => {
 
   it('should return exercises within an interval of time', (done) => {
     const userId = process.env.DB_USER_ID;
-    const fromDate = "2000-03-01";
-    const toDate = "2018-12-01";
+    const fromDate = '2000-03-01';
+    const toDate = '2018-12-01';
 
     request(app)
       .get(`/api/exercise/log?userId=${userId}&from=${fromDate}&to=${toDate}`)
@@ -660,7 +660,7 @@ describe('GET /api/exercise/log', () => {
       .end(done);
   });
 
-  it(`should return error message if a user with the provided id doesn\'t exist`, (done) => {
+  it('should return error message if a user with the provided id doesn\'t exist', (done) => {
     const id = new ObjectID();
     const idStr = id.toString();
 

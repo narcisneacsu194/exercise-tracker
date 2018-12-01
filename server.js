@@ -14,220 +14,217 @@ const port = process.env.PORT || 3000;
 app.use(bodyParser.json());
 
 app.post('/api/exercise/new-user', (req, res) => {
-    const username = req.body.username;
-    if(!username || username.trim().length === 0){
-        return res.status(400).send('Path `username` is required.');
+  const { username } = req.body;
+  if (!username || username.trim().length === 0) {
+    return res.status(400).send('Path `username` is required.');
+  }
+
+  return User.findOne({
+    username
+  }).then((user) => {
+    if (user) {
+      return res.status(400).send('username already taken');
     }
 
-    return User.findOne({
-        username
-    }).then((user) => {
-        if(user){
-            return res.status(400).send('username already taken');
-        }
-
-        let userFinal = new User({
-            username
-        });
-    
-        return userFinal.save();
-    }).then((user) => {
-        if(!user.username)return;
-        let id = user._id;
-        id = id.toString();
-        user = {
-            username,
-            _id: id
-        };
-        res.send(user);
-    }).catch((err) => {
-        res.status(400).send(`The following error occured: ${err}`);
+    const userFinal = new User({
+      username
     });
-});
-
-app.post('/api/exercise/add', (req, res) => {
-    const body = req.body;
-
-    const result = validateResponse(body, res);
-    if(result){
-        return result;
-    }
-
-    let username;
-    let date;
-    let dateVar;
-    let format = 'ddd MMM DD YYYY';
-    User.findById(body.userId).then((user) => {
-        if(!user){
-            return res.status(400).send('unknown _id');
-        }
-        username = user.username;
-
-        if(!body.date){
-          dateVar = moment();
-          date = new Date(dateVar.valueOf());
-        }else{
-          dateVar = moment(body.date);
-          date = new Date(dateVar.valueOf());
-        }
-
-        const exercise = new Exercise({
-            username,
-            userId: new ObjectID(body.userId),
-            description: body.description,
-            duration: body.duration,
-            date
-        });
-
-        return exercise.save();
-    }).then((exercise) => {
-        if(!exercise.description)return;
-
-        const finalExercise = {
-            username,
-            description: exercise.description,
-            duration: exercise.duration,
-            userId: exercise.userId.toString(),
-            date: moment(exercise.date).format(format)
-        };
-
-        res.send(finalExercise);
-    }).catch((err) => {
-        res.status(400).send(`Something went wrong -> ${err}`);
-    });
-});
-
-app.get('/api/exercise/log', (req, res) => {
-    const q = req.query;
-    if(!q.userId || q.userId.length === 0){
-      return res.status(400).send('unknown userId');
-    }
-
-    if(!ObjectID.isValid(q.userId)){
-      return res.status(400).send('The provided userId has an invalid format.');
-    }
-
-    let username;
-    User.findById(q.userId).then((user) => {
-        if(!user){
-          return res.status(400).send('unknown userId');
-        }
-
-        username = user.username;
-
-
-        if(q.from && moment(q.from).isValid() && q.to && moment(q.to).isValid()){
-          let dateVarFrom = moment(q.from);
-          let dbDateFrom = new Date(dateVarFrom.valueOf());
-          dbDateFrom.setTime(dbDateFrom.getTime() - (dbDateFrom.getTimezoneOffset() * 60 * 1000));
-
-          let dateVarTo = moment(q.to);
-          let dbDateTo = new Date(dateVarTo.valueOf());
-          dbDateTo.setTime(dbDateTo.getTime() - (dbDateTo.getTimezoneOffset() * 60 * 1000));
-
-          return Exercise.find({
-            userId: q.userId,
-            date: {
-                $gt: dbDateFrom,
-                $lt: dbDateTo
-            }
-          }).sort('-date');
-        }
-
-        if(q.from && moment(q.from).isValid()){
-          let dateVar = moment(q.from);
-          let dbDate = new Date(dateVar.valueOf());
-          dbDate.setTime(dbDate.getTime() - (dbDate.getTimezoneOffset() * 60 * 1000));
-          return Exercise.find({
-              userId: q.userId,
-              date: {
-                  $gt: dbDate
-              }
-          }).sort('-date');
-        }
-
-        if(q.to && moment(q.to).isValid()){
-            let dateVar = moment(q.to);
-            let dbDate = new Date(dateVar.valueOf());
-            dbDate.setTime(dbDate.getTime() - (dbDate.getTimezoneOffset() * 60 * 1000));
-            return Exercise.find({
-                userId: q.userId,
-                date: {
-                    $lt: dbDate
-                }
-            }).sort('-date');
-        }
-
-        return Exercise.find({ userId: q.userId }).sort('-date');
-    }).then((exercises) => {
-        if (!(exercises instanceof Array)) return;
-        let newExerciseArr = exercises.map((exercise) => {
-            return _.pick(exercise, ['description', 'duration', 'date']);
-        });
-        newExerciseArr = newExerciseArr.map((exercise) => {
-            exercise.date = moment(exercise.date).format('ddd MMM DD YYYY');
-            return exercise;
-        });
-        let finalExerciseArr = [];
-
-        if(q.limit && q.limit !== 0 && exercises.length > q.limit){
-            let limit = Math.abs(q.limit);
-            let i = 0;
-            while(i < limit){
-              finalExerciseArr[i] = newExerciseArr[i];
-              i++;
-            }
-        }
-
-        const response = {
-            _id: q.userId,
-            username,
-            count: finalExerciseArr.length === 0 ? newExerciseArr.length : 
-                finalExerciseArr.length,
-            log: finalExerciseArr.length === 0 ? newExerciseArr : 
-                finalExerciseArr
-        };
-
-        res.send(response);
-    }).catch((err) => {
-      res.status(400).send(`Something went wrong -> ${err}`);    
-    });    
+    return userFinal.save();
+  }).then((user) => {
+    if (!user.username) return;
+    let id = user._id;
+    id = id.toString();
+    const finalUser = {
+      username,
+      _id: id
+    };
+    res.send(finalUser);
+  }).catch((err) => {
+    res.status(400).send(`The following error occured: ${err}`);
+  });
 });
 
 const validateResponse = (body, res) => {
-    if(!body.userId || body.userId.trim().length === 0){
-        return res.status(400).send('unknown _id');
-    }
+  if (!body.userId || body.userId.trim().length === 0) {
+    return res.status(400).send('unknown _id');
+  }
 
-    if(!ObjectID.isValid(body.userId)){
-        return res.status(400).send('The provided userId has an invalid format.');
-    }
-    
-    if(!body.description || body.description.trim().length === 0){
-        return res.status(400).send('Path `description` is required.');
-    }
+  if (!ObjectID.isValid(body.userId)) {
+    return res.status(400).send('The provided userId has an invalid format.');
+  }
 
-    if(!body.duration && body.duration !== 0){
-        return res.status(400).send('Path `duration` is required.');
-    }
+  if (!body.description || body.description.trim().length === 0) {
+    return res.status(400).send('Path `description` is required.');
+  }
 
-    if(body.duration < 1){
-        return res.status(400).send('duration too short');
-    }
+  if (!body.duration && body.duration !== 0) {
+    return res.status(400).send('Path `duration` is required.');
+  }
 
-    if(isNaN(body.duration)){
-        return res.status(400).send(`Cast to Number failed for value "${body.duration}" at path "duration"`);
-    }
+  if (body.duration < 1) {
+    return res.status(400).send('duration too short');
+  }
 
-    if (body.date && !moment(body.date).isValid()) {
-        return res.status(400).send(`Cast to Date failed for value "${body.date}" at path "date"`);
-    }
+  if (Number.isNaN(Number(body.duration))) {
+    return res.status(400).send(`Cast to Number failed for value "${body.duration}" at path "duration"`);
+  }
 
-    return null;
+  if (body.date && !moment(body.date).isValid()) {
+    return res.status(400).send(`Cast to Date failed for value "${body.date}" at path "date"`);
+  }
+
+  return null;
 };
 
-app.listen(port, () => {
-    console.log(`Server started up on port ${port}`);
+app.post('/api/exercise/add', (req, res) => {
+  const { body } = req;
+
+  const result = validateResponse(body, res);
+  if (result) {
+    return result;
+  }
+
+  let username;
+  let date;
+  let dateVar;
+  const format = 'ddd MMM DD YYYY';
+  return User.findById(body.userId).then((user) => {
+    if (!user) {
+      return res.status(400).send('unknown _id');
+    }
+
+    username = user.username;
+
+    if (!body.date) {
+      dateVar = moment();
+      date = new Date(dateVar.valueOf());
+    } else {
+      dateVar = moment(body.date);
+      date = new Date(dateVar.valueOf());
+    }
+
+    const exercise = new Exercise({
+      username,
+      userId: new ObjectID(body.userId),
+      description: body.description,
+      duration: body.duration,
+      date
+    });
+
+    return exercise.save();
+  }).then((exercise) => {
+    if (!exercise.description) return;
+
+    const finalExercise = {
+      username,
+      description: exercise.description,
+      duration: exercise.duration,
+      userId: exercise.userId.toString(),
+      date: moment(exercise.date).format(format)
+    };
+
+    res.send(finalExercise);
+  }).catch((err) => {
+    res.status(400).send(`Something went wrong -> ${err}`);
+  });
 });
-  
+
+app.get('/api/exercise/log', (req, res) => {
+  const q = req.query;
+  if (!q.userId || q.userId.length === 0) {
+    return res.status(400).send('unknown userId');
+  }
+
+  if (!ObjectID.isValid(q.userId)) {
+    return res.status(400).send('The provided userId has an invalid format.');
+  }
+
+  let username;
+  return User.findById(q.userId).then((user) => {
+    if (!user) {
+      return res.status(400).send('unknown userId');
+    }
+
+    username = user.username;
+
+
+    if (q.from && moment(q.from).isValid() && q.to && moment(q.to).isValid()) {
+      const dateVarFrom = moment(q.from);
+      const dbDateFrom = new Date(dateVarFrom.valueOf());
+      dbDateFrom.setTime(dbDateFrom.getTime() - (dbDateFrom.getTimezoneOffset() * 60 * 1000));
+
+      const dateVarTo = moment(q.to);
+      const dbDateTo = new Date(dateVarTo.valueOf());
+      dbDateTo.setTime(dbDateTo.getTime() - (dbDateTo.getTimezoneOffset() * 60 * 1000));
+
+      return Exercise.find({
+        userId: q.userId,
+        date: {
+          $gt: dbDateFrom,
+          $lt: dbDateTo
+        }
+      }).sort('-date');
+    }
+
+    if (q.from && moment(q.from).isValid()) {
+      const dateVar = moment(q.from);
+      const dbDate = new Date(dateVar.valueOf());
+      dbDate.setTime(dbDate.getTime() - (dbDate.getTimezoneOffset() * 60 * 1000));
+      return Exercise.find({
+        userId: q.userId,
+        date: {
+          $gt: dbDate
+        }
+      }).sort('-date');
+    }
+
+    if (q.to && moment(q.to).isValid()) {
+      const dateVar = moment(q.to);
+      const dbDate = new Date(dateVar.valueOf());
+      dbDate.setTime(dbDate.getTime() - (dbDate.getTimezoneOffset() * 60 * 1000));
+      return Exercise.find({
+        userId: q.userId,
+        date: {
+          $lt: dbDate
+        }
+      }).sort('-date');
+    }
+
+    return Exercise.find({ userId: q.userId }).sort('-date');
+  }).then((exercises) => {
+    if (!(exercises instanceof Array)) return;
+    let newExerciseArr = exercises.map(exercise => _.pick(exercise, ['description', 'duration', 'date']));
+    newExerciseArr = newExerciseArr.map((exercise) => {
+      const newExercise = exercise;
+      newExercise.date = moment(exercise.date).format('ddd MMM DD YYYY');
+      return newExercise;
+    });
+    const finalExerciseArr = [];
+
+    if (q.limit && q.limit !== 0 && exercises.length > q.limit) {
+      const limit = Math.abs(q.limit);
+      let i = 0;
+      while (i < limit) {
+        finalExerciseArr[i] = newExerciseArr[i];
+        i += 1;
+      }
+    }
+
+    const response = {
+      _id: q.userId,
+      username,
+      count: finalExerciseArr.length === 0 ? newExerciseArr.length : finalExerciseArr.length,
+      log: finalExerciseArr.length === 0 ? newExerciseArr : finalExerciseArr
+    };
+
+    res.send(response);
+  }).catch((err) => {
+    res.status(400).send(`Something went wrong -> ${err}`);
+  });
+});
+
+app.listen(port, () => {
+  console.log(`Server started up on port ${port}`);
+});
+
 module.exports = { app };
