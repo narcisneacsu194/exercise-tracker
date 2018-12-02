@@ -34,7 +34,7 @@ let exercises = [
 ];
 
 const populateUserCollection = (done) => {
-  User.remove({}).then(() => {
+  User.deleteMany({}).then(() => {
     User.insertMany(user).then((users) => {
       process.env.DB_USER_ID = users[0].id;
       process.env.DB_USER_NAME = users[0].username;
@@ -53,7 +53,7 @@ const populateExerciseCollection = (done) => {
     return newExercise;
   });
 
-  Exercise.remove({}).then(() => {
+  Exercise.deleteMany({}).then(() => {
     Exercise.insertMany(exercises).then(() => done());
   });
 };

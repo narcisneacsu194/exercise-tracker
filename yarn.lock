@@ -1886,17 +1886,17 @@ mocha@3.0.2:
     mkdirp "0.5.1"
     supports-color "3.1.2"
 
-moment-timezone@0.5.23:
-  version "0.5.23"
-  resolved "https://registry.yarnpkg.com/moment-timezone/-/moment-timezone-0.5.23.tgz#7cbb00db2c14c71b19303cb47b0fb0a6d8651463"
-  integrity sha512-WHFH85DkCfiNMDX5D3X7hpNH3/PUhjTGcD0U1SgfBGZxJ3qUmJh5FdvaFjcClxOvB3rzdfj4oRffbI38jEnC1w==
+moment-timezone@0.0.1:
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/moment-timezone/-/moment-timezone-0.0.1.tgz#f70d2a354bcadb1f4a4188aeb8f76df1765fa51e"
+  integrity sha1-9w0qNUvK2x9KQYiuuPdt8XZfpR4=
   dependencies:
-    moment ">= 2.9.0"
+    moment "2.1.0"
 
-"moment@>= 2.9.0":
-  version "2.22.2"
-  resolved "https://registry.yarnpkg.com/moment/-/moment-2.22.2.tgz#3c257f9839fc0e93ff53149632239eb90783ff66"
-  integrity sha1-PCV/mDn8DpP/UxSWMiOeuQeD/2Y=
+moment@2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/moment/-/moment-2.1.0.tgz#1fd7b1134029a953c6ea371dbaee37598ac03567"
+  integrity sha1-H9exE0ApqVPG6jcduu43WYrANWc=
 
 mongodb-core@3.1.9:
   version "3.1.9"
