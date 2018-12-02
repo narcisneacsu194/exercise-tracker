@@ -26,11 +26,11 @@ Microservice project for tracking details about exercises done by different user
       "userId": "<random_alphanumeric_string_of_user>",
       "description": "Example exercise description",
       "duration": 10
-      "date": 2018-11-28
+      "date": "2018-11-28"
     }
    ```
-  The "duration" property is how much time did it took the user to do the exercise (in minutes).
-  The "date" property needs to have a format like *yyy-mm-dd*.
+  The "duration" property is how much time it took the user to do the exercise (in minutes).
+  The "date" property can have any format, as long as it complies with the **ISO-8601** standard.
 
    The "userId", "description" and "duration" properties are **mandatory**.
 
@@ -49,7 +49,7 @@ Microservice project for tracking details about exercises done by different user
 * *GET /api/exercise/log?{userId}[&from][&to][&limit]* enables you to get all or some of the exercises done by a specific user.
 The "userId" request param is **mandatory**, while the "from", "to" and "limit" properties are *optional*.
 
-  The "from" and "to" are properties which contain dates with a format like *yyyy-mm-dd*. These two properties are used to specify from what interval of time you want to retrieve the specific user's exercises.
+  The "from" and "to" are properties which contain dates. These two properties are used to specify from what interval of time you want to retrieve the specific user's exercises.
 
   The "limit" property is used to specify the number of exercises to 
   be returned from the query.
